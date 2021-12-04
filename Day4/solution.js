@@ -11,7 +11,9 @@ drawnNumbers.forEach((num, i) => {
 
 
 var minBoard = [];
+var maxBoard = [];
 var minDrawTime = Number.MAX_SAFE_INTEGER;
+var maxDrawTime = Number.MIN_SAFE_INTEGER;
 
 for (var i = 2; i < input.length; i+= GRID_SIZE + 1){
     var currentBoard = readBoard(i);
@@ -21,13 +23,25 @@ for (var i = 2; i < input.length; i+= GRID_SIZE + 1){
         minDrawTime = drawTime;
         minBoard = currentBoard;
     }
+
+    if (drawTime > maxDrawTime){
+        maxDrawTime = drawTime;
+        maxBoard = currentBoard;
+    }
 }
 
-console.log ("Last drawn number: " + drawnNumbers[minDrawTime]);
-console.log("Winning board: " + minBoard);
+var minResult = calculateResult(minBoard, minDrawTime);
+var maxResult = calculateResult(maxBoard, maxDrawTime);
 
-var result = calculateResult(minBoard, minDrawTime);
-console.log("Result: " + result);
+console.log("PART 1");
+console.log ("Last drawn number: " + drawnNumbers[minDrawTime]);
+console.log("First completed board: " + minBoard);
+console.log("Result: " + minResult);
+console.log("------------");
+console.log("PART 2");
+console.log ("Last drawn number: " + drawnNumbers[maxDrawTime]);
+console.log("Last completed board: " + maxBoard);
+console.log("Result: " + maxResult);
 
 /****
  * FUNCTIONS
@@ -45,12 +59,12 @@ function readBoard(startIndex){
 function calculateBoardDrawTime(board){
     var boardDrawTimes = board.map( row => row.map( column => column = numOrder[column]));
 
-    var minBoardDrawTime = Number.MAX_SAFE_INTEGER;
+    var boardDrawTime = Number.MAX_SAFE_INTEGER;
 
     const checkMax = arr => {
         var max = Math.max(...arr);
-        if (max < minBoardDrawTime){
-            minBoardDrawTime = max;
+        if (max < boardDrawTime){
+            boardDrawTime = max;
         }
     };
 
@@ -64,12 +78,12 @@ function calculateBoardDrawTime(board){
         checkMax(boardDrawTimes.map(row => row[i]));
     }
     
-    return minBoardDrawTime;
+    return boardDrawTime;
 }
 
 function calculateResult(board, drawTime){   
     var unmarkedSum = [].concat(...board).reduce((prev, curr) => numOrder[curr] > drawTime ? prev + curr : prev, 0);
-    var lastDrawnNum = parseInt(drawnNumbers[minDrawTime]);
+    var lastDrawnNum = parseInt(drawnNumbers[drawTime]);
 
     return unmarkedSum * lastDrawnNum;
 }

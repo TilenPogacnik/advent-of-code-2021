@@ -28,7 +28,7 @@ function decodeOutput(output, groups){
         [...encodedDigit].forEach(char => {
             groupCode[getCharGroup(char, groups)]++;
         });
-        return DIGIT_GROUPS2.findIndex(_ => _ === groupCode.join(""));       
+        return DIGIT_GROUPS.findIndex(_ => _ === groupCode.join(""));       
     }
 
     return parseInt(output.split(" ").map(encodedDigit => decodeDigit(encodedDigit)).join(''));

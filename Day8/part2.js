@@ -1,7 +1,7 @@
 var fs = require("fs");
 
 //Explanation for digit groups: https://docs.google.com/spreadsheets/d/1U_tBsShi6tGHjMuMFc9h0KeTiqPcDLVV3C6U3p_RpSE/
-const DIGIT_GROUPS = [ "2112", "2000", "1112", "2111", "2020", "1121", "1122", "2100", "2122", "2121"];
+const DIGIT_GROUPS = ["312", "200", "212", "311", "220", "221", "222", "300", "322", "321"];
 
 const input = fs.readFileSync("./input.txt").toString('utf-8').split("\n")
 
@@ -16,8 +16,7 @@ function solveEntry(entry){
 
 function generateGroups(patterns){
     var groups = [];
-    groups.push(patterns.find(p => p.length == 2));
-    groups.push(patterns.find(p => p.length == 3).split('').filter(c => !groups[0].includes(c)).join(''));
+    groups.push(patterns.find(p => p.length == 3));
     groups.push(patterns.find(p => p.length == 4).split('').filter(c => !groups[0].includes(c)).join(''));
     groups.push("abcdefg".split('').filter(c => !groups.join('').includes(c)).join(''));
     return groups;
@@ -25,11 +24,11 @@ function generateGroups(patterns){
 
 function decodeOutput(output, groups){
     const decodeDigit = (encodedDigit) => {
-        var groupCode = new Array(4).fill(0);
+        var groupCode = new Array(3).fill(0);
         [...encodedDigit].forEach(char => {
             groupCode[getCharGroup(char, groups)]++;
         });
-        return DIGIT_GROUPS.findIndex(_ => _ === groupCode.join(""));       
+        return DIGIT_GROUPS2.findIndex(_ => _ === groupCode.join(""));       
     }
 
     return parseInt(output.split(" ").map(encodedDigit => decodeDigit(encodedDigit)).join(''));

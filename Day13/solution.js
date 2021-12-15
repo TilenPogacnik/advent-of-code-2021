@@ -9,6 +9,8 @@ const folds = input[1].split("\n").map(line => [line[11] == 'y', parseInt(line.s
 let foldedDots = foldDots(_.cloneDeep(dots), folds);
 console.log("--------------");
 generateImage(foldedDots);
+console.log("--------------");
+
 
 function foldDots(dots, folds){
     folds.forEach((fold, i) => {
@@ -40,5 +42,5 @@ function generateImage(dots){
     let image = new Array(maxHeight).fill(0).map(() => new Array(maxWidth).fill(0));
     dots.forEach(dot => image[dot[1]][dot[0]]++);
    
-    image.forEach(l => console.log(l.map(x => x > 0 ? "#":".").join("")));
+    image.forEach(l => console.log(l.map(x => x > 0 ? "#":" ").join("")));
 }

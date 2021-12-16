@@ -32,13 +32,10 @@ class Packet{
         this.literalValue = 0;
         this.childPackets = [];
 
-        switch (this.typeID) {
-            case PacketType.Literal:
-                this.parseLiteralValue();
-                break;
-            default: 
-                this.parseOperator();
-                break;
+        if (this.typeID == PacketType.Literal){
+            this.parseLiteralValue();
+        } else {
+            this.parseOperator();
         }
 
         this.initialized = true;

@@ -1,12 +1,14 @@
 var fs = require("fs");
-const input = fs.readFileSync("./input.txt").toString('utf-8');
-
-//*********
-//CLASSES
-//*********
 
 const PacketType = {
     Literal: 4,
+    Sum: 0,
+    Product: 1,
+    Minimum: 2,
+    Maximum: 3,
+    GreaterThan: 5,
+    LessThan: 6,
+    Equal: 7,
 }
 
 const BitLengths = {
@@ -15,8 +17,8 @@ const BitLengths = {
     LiteralGroupHeader: 1,
     LiteralGroupLength: 4,
     LengthTypeID: 1,
-    TotalSubpacketBitLength: 15, //in operator packets with lengthTypeID == 0
-    SubpacketCount: 11, //in operator packets with lengthTypeID == 1
+    TotalSubpacketBitLength: 15,
+    SubpacketCount: 11,
 }
 
 class Packet{
@@ -56,12 +58,10 @@ class Packet{
     parseOperator(){
         let lengthTypeID = this.readNumber(BitLengths.LengthTypeID);
         if (lengthTypeID == 0){
-            let subpacketsBitLength = this.readNumber(BitLengths.TotalSubpacketBitLength);
-            let endIndex = this.currentIndex + subpacketsBitLength;
+            let endIndex = this.readNumber(BitLengths.TotalSubpacketBitLength) + this.currentIndex;
             while (this.currentIndex < endIndex){
                 this.readChild();
             }
-
         } else {
             let subpacketCount = this.readNumber(BitLengths.SubpacketCount);
             for (let i = 0; i < subpacketCount; i++){
@@ -86,10 +86,6 @@ class Packet{
         return result;
     }
 
-    isPacketType(type){
-        return this.typeID == type;
-    }
-
     getEndIndex(){
         return this.initialized ? this.currentIndex : -1;
     }
@@ -97,17 +93,51 @@ class Packet{
     getVersionSum(){
         return this.version + this.childPackets.reduce((sum, child) => sum += child.getVersionSum(), 0);
     }
+
+    evaluate() {
+        switch(this.typeID){
+            case PacketType.Literal:
+                return this.literalValue;
+
+            case PacketType.Sum:
+                return this.childPackets.reduce((sum, child) => sum += child.evaluate(), 0);
+                
+            case PacketType.Product:
+                return this.childPackets.reduce((sum, child) => sum *= child.evaluate(), 1);
+
+            case PacketType.Minimum:
+                return this.childPackets.reduce((min, child) => {
+                    let childVal = child.evaluate();
+                    return childVal < min ? childVal : min;
+                }, Number.MAX_SAFE_INTEGER);
+
+            case PacketType.Maximum:
+                return this.childPackets.reduce((max, child) => {
+                    let childVal = child.evaluate();
+                    return childVal > max ? childVal : max;
+                }, Number.MIN_SAFE_INTEGER);
+
+            case PacketType.GreaterThan:
+                return this.childPackets[0].evaluate() > this.childPackets[1].evaluate() ? 1 : 0;
+
+            case PacketType.LessThan:
+                return this.childPackets[0].evaluate() < this.childPackets[1].evaluate() ? 1 : 0;
+
+            case PacketType.Equal:
+                return this.childPackets[0].evaluate() == this.childPackets[1].evaluate() ? 1 : 0;
+        }
+    }
 }
 
 //*********
 //CODE
 //*********
 
-let binaryInput = createBinaryInput(input);
-
-let packet = new Packet(binaryInput);
+const input = fs.readFileSync("./input.txt").toString('utf-8');
+const packet = new Packet(createBinaryInput(input));
 
 console.log("Part 1 solution: Version sum: " + packet.getVersionSum());
+console.log("Part 2 solution: Packet value: " + packet.evaluate());
 
 //*********
 //FUNCTIONS

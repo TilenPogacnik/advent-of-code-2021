@@ -1,5 +1,8 @@
 const fs = require("fs");
 const _ = require("lodash");
+const Jimp = require("jimp");
+
+
 const input = fs.readFileSync("./input.txt").toString("utf-8").split('\n');
 
 const REGION_TYPE = {
@@ -9,6 +12,8 @@ const REGION_TYPE = {
 }
 
 let grid = parseInput(input);
+saveGridImage(0, _.cloneDeep(grid));
+
 let stepCount = simulateSteps();
 console.log("Sea cucumbers stop moving on step " + stepCount);
 
@@ -17,8 +22,9 @@ function simulateSteps() {
     let madeAMove = false;
 
     do {
-        madeAMove = step();
         stepCount++;
+        madeAMove = step();
+        saveGridImage(stepCount, _.cloneDeep(grid));
     } while (madeAMove);
 
     return stepCount;
@@ -91,4 +97,25 @@ function printGrid(i){
     console.log("After step " + i);
     _.cloneDeep(grid).forEach(line => console.log(line.join('').replace(/0/g, ".").replace(/1/g, ">").replace(/2/g, "v")));
     console.log("--------------------------------------------------");
+}
+
+function saveGridImage(step, gridCopy){
+    let eastColor = 0x989052FF;
+    let southColor = 0x4a6f67FF;
+    let emptyColor = 0x003f62FF;
+
+    new Jimp(grid[0].length, grid.length, function (err, image) {
+        if (err) throw err;
+      
+        gridCopy.forEach((row, y) => {
+          row.forEach((cucumber, x) => {
+            let color = cucumber == REGION_TYPE.EAST ? eastColor : cucumber == REGION_TYPE.SOUTH ? southColor : emptyColor;
+            image.setPixelColor(color, x, y);
+          });
+        });
+      
+        image.write('./StepImages/' + step + '.png', (err) => {
+          if (err) throw err;
+        });
+      });
 }

@@ -1,0 +1,7 @@
+{
+    "name": "advent-of-code-2021",
+    "dependencies": {
+        "jimp": "^0.16.1",
+        "lodash": "^4.17.21"
+    }
+}
